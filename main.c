@@ -46,6 +46,7 @@ int main(int argc, char* argv[]) {
     float resultados_alunos[num_alunos];
 
     for (int aluno = 0; aluno <  num_alunos; aluno++) {
+        num_corretas = 0;
         printf("Informe o RA do aluno %d: ", aluno + 1);
         scanf("%d", &ras_alunos[aluno]);
 
