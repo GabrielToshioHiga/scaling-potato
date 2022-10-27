@@ -5,7 +5,7 @@ void print_saudacoes();
 int get_num_questoes();
 float get_valor_questao(int num_questoes);
 char* get_gabarito(int num_questoes);
-void char_in_vetor(int* resultado, char item, char vetor[], int num_itens_validos);
+int char_in_vetor(char item, char vetor[], int num_itens_validos);
 
 int main(int argc, char* argv[]) {
     // Declaração das variáveis necessárias.
@@ -83,6 +83,7 @@ int main(int argc, char* argv[]) {
     return 0;
 }
 
+
 void print_saudacoes() {
     char mensagem_boas_vindas[] = "=================================================================================\n"
                                   "Olá, seja bem-vindo ao software de correção de provas objetivas da Espartana!\n"
@@ -98,6 +99,7 @@ void print_saudacoes() {
     printf("%s", mensagem_boas_vindas);
     return;
 }
+
 
 int get_num_questoes() {
 /* 
@@ -149,8 +151,7 @@ char* get_gabarito(int num_questoes) {
 
     // Aloca memória com o tamanho necessário.
     char* gabarito = (char*) calloc(num_questoes, sizeof(char));
-
-    // Variável para validação.
+    
     int resposta_valida = 0;
 
     // Vetor com as respostas consideradas válidas.
@@ -165,7 +166,7 @@ char* get_gabarito(int num_questoes) {
             scanf(" %c", &gabarito[i]);        
 
             // Verifica se a resposta informada é uma das respostas válidas.
-            char_in_vetor(&resposta_valida, gabarito[i], respostas_validas, sizeof(respostas_validas) / sizeof(respostas_validas[0]));
+            resposta_valida = char_in_vetor(gabarito[i], respostas_validas, sizeof(respostas_validas) / sizeof(respostas_validas[0]));
 
             // Se a resposta for inválida, avisa o usuário.
             if (!resposta_valida) {
@@ -179,7 +180,8 @@ char* get_gabarito(int num_questoes) {
     return gabarito;
 }
 
-void char_in_vetor(int* resultado, char item, char vetor[], int num_itens_validos) {
+
+int char_in_vetor(char item, char vetor[], int num_itens_validos) {
 /*
     Esta função verifica se um determinado caracter está ou não em um array de caracteres.
 
@@ -191,7 +193,7 @@ void char_in_vetor(int* resultado, char item, char vetor[], int num_itens_valido
 
     Retorna: nada, mas está preparada para modificar uma variável de validação cujo endereço deve ser passado.
 */
-    *resultado = 0;
+    int resultado = 0;
     printf("%d", num_itens_validos);
     for (int i = 0; i < num_itens_validos; i++) {
         if (item == vetor[i]) {
@@ -199,7 +201,7 @@ void char_in_vetor(int* resultado, char item, char vetor[], int num_itens_valido
             break;
         }
     }
-    return;
+    return resultado;
 }
 
 
