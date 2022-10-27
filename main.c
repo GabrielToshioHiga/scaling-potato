@@ -1,17 +1,28 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <locale.h>
 
 void print_saudacoes(); 
 int get_num_questoes();
 float get_valor_questao(int num_questoes);
 char* get_gabarito(int num_questoes);
+void mostra_gabarito(char* gabarito, int num_questoes);
+int get_num_alunos();
+void pega_respostas_alunos(int num_alunos, int num_questoes, float valor_questao, char* respostas_alunos, int* ras_alunos, float* resultados_alunos, char* gabarito);
+
+void realoca_memoria(void** ptr, int novo_tamanho);
 int char_in_vetor(char item, char vetor[], int num_itens_validos);
 
 int main(int argc, char* argv[]) {
+    setlocale(LC_ALL, "Portuguese");
+
     // Declaração das variáveis necessárias.
     int num_questoes = 0, num_alunos = 0, num_corretas = 0;
     float valor_questao = 0;
+    int* ras_alunos;
+    float* resultados_alunos;
     char* gabarito;
+    char* respostas_alunos;
 
     // Dá um bem-vindo pro usuário e explica como o programa funciona.
     print_saudacoes();
@@ -19,8 +30,8 @@ int main(int argc, char* argv[]) {
     // Pega o número de questões.
     num_questoes = get_num_questoes();
     
-    // Limpa a tela.
-    system("clear");
+    // Limpa a tela (funciona em alguns SOs, acho que não no Windows).
+    // system("clear");
 
     // Calcula o valor de cada questão.
     valor_questao = get_valor_questao(num_questoes);
@@ -29,45 +40,25 @@ int main(int argc, char* argv[]) {
     printf("\nAgora, precisamos do gabarito das questões...\n\n");
     gabarito = get_gabarito(num_questoes);
 
-    system("clear");
+    // system("clear");
 
     // Mostra o gabarito informado pelo usuário.
-    printf("O gabarito da prova, então, é: ");
-    printf("\nQuestão\tResposta");
+    mostra_gabarito(gabarito, num_questoes);
 
-    for (int i = 0; i < num_questoes; i++) {
-        printf("\n%d\t%c", i + 1, gabarito[i]);
-    }
-
-    printf("\nQuantos alunos fizeram a prova? ");
-    scanf("%d", &num_alunos);
+    // Pega o número de alunos que fizeram a prova.
+    num_alunos = get_num_alunos();
 
     printf("Ok... A seguir, receberemos os RAs as respostas de cada um dos %d alunos.\n", num_alunos);
 
-    char respostas_alunos[num_alunos][num_questoes];
-    int ras_alunos[num_alunos];
-    float resultados_alunos[num_alunos];
+    // char respostas_alunos[num_alunos][num_questoes];
+    // int ras_alunos[num_alunos];
+    // float resultados_alunos[num_alunos];
 
-    for (int aluno = 0; aluno <  num_alunos; aluno++) {
-        num_corretas = 0;
-        printf("Informe o RA do aluno %d: ", aluno + 1);
-        scanf("%d", &ras_alunos[aluno]);
+    pega_respostas_alunos(num_alunos, num_questoes, valor_questao, respostas_alunos, ras_alunos, resultados_alunos, gabarito);
 
-        for (int questao = 0; questao < num_questoes; questao++) {
-            printf("\nQual a resposta dada ao item %d? ", questao + 1);
-            scanf(" %c", &respostas_alunos[aluno][questao]);
-        }
 
-        for (int questao = 0; questao < num_questoes; questao++) {
-            if (respostas_alunos[aluno][questao] == gabarito[questao]) {
-                num_corretas += 1;
-            }
-        }
 
-        resultados_alunos[aluno] = num_corretas * valor_questao;
-    }
-
-    system("clear");
+    // system("clear");
 
     for (int aluno = 0; aluno < num_alunos; aluno++) {
         printf("\nResultado do aluno RA %d:\t%.2f.", ras_alunos[aluno], resultados_alunos[aluno]);
@@ -181,6 +172,44 @@ char* get_gabarito(int num_questoes) {
 }
 
 
+void mostra_gabarito(char* gabarito, int num_questoes) {
+    
+    // Mostra o gabarito informado pelo usuário.
+    
+    printf("O gabarito da prova, então, é: ");
+    printf("\n\tQuestão\tResposta");
+
+    for (int i = 0; i < num_questoes; i++) {
+        printf("\n\t%d\t%c", i + 1, gabarito[i]);
+    }
+
+
+    return;
+}
+
+
+int get_num_alunos() {
+/*
+    Esta função pega o número de alunos.
+
+    Retorna: o número de alunos.
+*/
+    int num_alunos = 0;
+
+    do {
+        printf("\nQuantos alunos fizeram a prova? ");
+        scanf("%d", &num_alunos);
+
+        if (num_alunos <= 0) {
+            printf("O número de alunos deve ser positivo!\n");
+        }
+
+    } while (num_alunos <= 0);
+
+    return num_alunos;
+}
+
+
 int char_in_vetor(char item, char vetor[], int num_itens_validos) {
 /*
     Esta função verifica se um determinado caracter está ou não em um array de caracteres.
@@ -197,15 +226,59 @@ int char_in_vetor(char item, char vetor[], int num_itens_validos) {
     printf("%d", num_itens_validos);
     for (int i = 0; i < num_itens_validos; i++) {
         if (item == vetor[i]) {
-            *resultado = 1;
+            resultado = 1;
             break;
         }
     }
     return resultado;
 }
 
+void pega_respostas_alunos(int num_alunos, int num_questoes, float valor_questao, char* respostas_alunos, int* ras_alunos, float* resultados_alunos, char* gabarito) {
+    void* aux_1 = &respostas_alunos;
+    void* aux_2 = &ras_alunos;
+    void* aux_3 = &resultados_alunos;
+    
+    realoca_memoria(aux_1, num_alunos * num_questoes * sizeof(char));
+    realoca_memoria(aux_2, num_alunos * sizeof(int));
+    realoca_memoria(aux_3, num_alunos * sizeof(float));
+
+    int num_corretas = 0;
+
+    for (int aluno = 0; aluno <  num_alunos; aluno++) {
+        num_corretas = 0;
+        printf("Informe o RA do aluno %d: ", aluno + 1);
+        scanf("%d", &ras_alunos[aluno]);
+
+        for (int questao = 0; questao < num_questoes; questao++) {
+            printf("\nQual a resposta dada ao item %d? ", questao + 1);
+            scanf(" %c", &respostas_alunos[aluno][questao]);
+        }
+
+        for (int questao = 0; questao < num_questoes; questao++) {
+            if (respostas_alunos[aluno][questao] == gabarito[questao]) {
+                num_corretas += 1;
+            }
+        }
+
+        resultados_alunos[aluno] = num_corretas * valor_questao;
+    }
 
 
+    return;
+}
+
+void realoca_memoria(void** ptr, int novo_tamanho) {
+    void* ptr_aux;
+
+    ptr_aux = realloc(*ptr, novo_tamanho);
+
+    if (ptr_aux == NULL) {
+        exit(1);
+    } else {
+        *ptr = ptr_aux;
+    }
+
+}
 
 
 
