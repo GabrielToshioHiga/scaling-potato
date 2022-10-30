@@ -2,60 +2,113 @@
 #include <stdlib.h>
 #include <locale.h>
 
-void print_saudacoes(); 
-int get_num_questoes();
-float get_valor_questao(int num_questoes);
-char* get_gabarito(int num_questoes);
-void mostra_gabarito(char* gabarito, int num_questoes);
-int get_num_alunos();
-void pega_respostas_alunos(int num_alunos, int num_questoes, float valor_questao, char* respostas_alunos, int* ras_alunos, float* resultados_alunos, char* gabarito);
 
-void realoca_memoria(void** ptr, int novo_tamanho);
+// Protótipos das funções.
+// Funções para manejo de dados.
+int set_num_questoes();
+float set_valor_questao(int num_questoes);
+char* set_gabarito(int num_questoes);
+void get_gabarito(char* gabarito, int num_questoes);
+int set_num_alunos();
+
+// Funções utilitárias.
+void print_saudacoes(); 
 int char_in_vetor(char item, char vetor[], int num_itens_validos);
 
+
+// Estruturas.
+typedef struct Aluno {
+    int ra;
+    char* respostas;
+    float resultado;
+} Aluno;
+
+
+typedef struct Prova {
+    int num_questoes;
+    float valor_questao;
+    char* gabarito;
+} Prova;
+
+
+typedef struct Turma {
+    int num_alunos;
+    Prova* prova;
+    Aluno* alunos;
+} Turma;
+
+
+// ============================================
+// Função main.
+// ============================================
 int main(int argc, char* argv[]) {
     setlocale(LC_ALL, "Portuguese");
 
     // Declaração das variáveis necessárias.
     int num_questoes = 0, num_alunos = 0, num_corretas = 0;
     float valor_questao = 0;
+    Aluno* dados_alunos;
+    char* gabarito;
     int* ras_alunos;
     float* resultados_alunos;
-    char* gabarito;
-    char* respostas_alunos;
+
+    Prova prova;
 
     // Dá um bem-vindo pro usuário e explica como o programa funciona.
     print_saudacoes();
     
     // Pega o número de questões.
-    num_questoes = get_num_questoes();
+    prova.num_questoes = set_num_questoes();
     
     // Limpa a tela (funciona em alguns SOs, acho que não no Windows).
     // system("clear");
 
     // Calcula o valor de cada questão.
-    valor_questao = get_valor_questao(num_questoes);
+    prova.valor_questao = set_valor_questao(prova.num_questoes);
 
     // Pega o gabarito.
     printf("\nAgora, precisamos do gabarito das questões...\n\n");
-    gabarito = get_gabarito(num_questoes);
+    prova.gabarito = set_gabarito(prova.num_questoes);
 
     // system("clear");
 
     // Mostra o gabarito informado pelo usuário.
-    mostra_gabarito(gabarito, num_questoes);
+    get_gabarito(gabarito, num_questoes);
 
     // Pega o número de alunos que fizeram a prova.
-    num_alunos = get_num_alunos();
+    num_alunos = set_num_alunos();
 
     printf("Ok... A seguir, receberemos os RAs as respostas de cada um dos %d alunos.\n", num_alunos);
+    
+    // Aloca a quantidade correta de memória.
+    dados_alunos = (Aluno*) calloc(num_alunos, sizeof(Aluno));
 
-    // char respostas_alunos[num_alunos][num_questoes];
-    // int ras_alunos[num_alunos];
-    // float resultados_alunos[num_alunos];
 
-    pega_respostas_alunos(num_alunos, num_questoes, valor_questao, respostas_alunos, ras_alunos, resultados_alunos, gabarito);
+    // Aloca memória de acordo com o número de alunos e de questões.
+    //int ras_alunos[num_alunos];
+    ras_alunos = (int*) calloc(1, num_alunos * sizeof(int));
+    char respostas_alunos[num_alunos][num_questoes];
+    resultados_alunos = (float*) calloc(1, num_alunos * sizeof(float));
 
+    // Loop para pegar os dados para cada aluno.
+    for (int aluno = 0; aluno <  num_alunos; aluno++) {
+        num_corretas = 0;
+        printf("Informe o RA do aluno %d: ", aluno + 1);
+        scanf("%d", &ras_alunos[aluno]);
+
+        for (int questao = 0; questao < num_questoes; questao++) {
+            printf("\nQual a resposta dada ao item %d? ", questao + 1);
+            scanf(" %c", &respostas_alunos[aluno][questao]);
+        }
+
+        for (int questao = 0; questao < num_questoes; questao++) {
+            if (respostas_alunos[aluno][questao] == gabarito[questao]) {
+                num_corretas += 1;
+            }
+        }
+
+        resultados_alunos[aluno] = num_corretas * valor_questao;
+    }
 
 
     // system("clear");
@@ -70,7 +123,10 @@ int main(int argc, char* argv[]) {
 
 
     printf("\n");
+
+    // Libera memória alocada.
     free(gabarito);
+    free(dados_alunos);
     return 0;
 }
 
@@ -92,7 +148,7 @@ void print_saudacoes() {
 }
 
 
-int get_num_questoes() {
+int set_num_questoes() {
 /* 
     Função para pegar o número de questões como entrada do usuário.
 
@@ -112,7 +168,7 @@ int get_num_questoes() {
 }
 
 
-float get_valor_questao(int num_questoes) {
+float set_valor_questao(int num_questoes) {
 /*
     Esta função calcula o valor de cada questão.
     
@@ -130,7 +186,7 @@ float get_valor_questao(int num_questoes) {
 }
 
 
-char* get_gabarito(int num_questoes) {
+char* set_gabarito(int num_questoes) {
 /*
     Esta função recebe o gabarito da prova.
 
@@ -172,7 +228,7 @@ char* get_gabarito(int num_questoes) {
 }
 
 
-void mostra_gabarito(char* gabarito, int num_questoes) {
+void get_gabarito(char* gabarito, int num_questoes) {
     
     // Mostra o gabarito informado pelo usuário.
     
@@ -188,7 +244,7 @@ void mostra_gabarito(char* gabarito, int num_questoes) {
 }
 
 
-int get_num_alunos() {
+int set_num_alunos() {
 /*
     Esta função pega o número de alunos.
 
@@ -220,7 +276,7 @@ int char_in_vetor(char item, char vetor[], int num_itens_validos) {
         vetor: o array em questão.
         num_itens_validos: a quantidade de elementos em 'vetor'.
 
-    Retorna: nada, mas está preparada para modificar uma variável de validação cujo endereço deve ser passado.
+    Retorna: 0, se o item não estiver no vetor; 1, se o item estiver no vetor.
 */
     int resultado = 0;
     printf("%d", num_itens_validos);
@@ -233,52 +289,8 @@ int char_in_vetor(char item, char vetor[], int num_itens_validos) {
     return resultado;
 }
 
-void pega_respostas_alunos(int num_alunos, int num_questoes, float valor_questao, char* respostas_alunos, int* ras_alunos, float* resultados_alunos, char* gabarito) {
-    void* aux_1 = &respostas_alunos;
-    void* aux_2 = &ras_alunos;
-    void* aux_3 = &resultados_alunos;
-    
-    realoca_memoria(aux_1, num_alunos * num_questoes * sizeof(char));
-    realoca_memoria(aux_2, num_alunos * sizeof(int));
-    realoca_memoria(aux_3, num_alunos * sizeof(float));
-
-    int num_corretas = 0;
-
-    for (int aluno = 0; aluno <  num_alunos; aluno++) {
-        num_corretas = 0;
-        printf("Informe o RA do aluno %d: ", aluno + 1);
-        scanf("%d", &ras_alunos[aluno]);
-
-        for (int questao = 0; questao < num_questoes; questao++) {
-            printf("\nQual a resposta dada ao item %d? ", questao + 1);
-            scanf(" %c", &respostas_alunos[aluno][questao]);
-        }
-
-        for (int questao = 0; questao < num_questoes; questao++) {
-            if (respostas_alunos[aluno][questao] == gabarito[questao]) {
-                num_corretas += 1;
-            }
-        }
-
-        resultados_alunos[aluno] = num_corretas * valor_questao;
-    }
 
 
-    return;
-}
-
-void realoca_memoria(void** ptr, int novo_tamanho) {
-    void* ptr_aux;
-
-    ptr_aux = realloc(*ptr, novo_tamanho);
-
-    if (ptr_aux == NULL) {
-        exit(1);
-    } else {
-        *ptr = ptr_aux;
-    }
-
-}
 
 
 
