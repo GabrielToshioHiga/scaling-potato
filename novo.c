@@ -6,13 +6,13 @@
 
 // ==============================
 // Structs.
-// This struct represents a student.
-typedef struct Student {
-    int ra;
-    int num_correct;
-    float result;
-    char* answers;
-} Student;
+
+// This struct represents the grade, the class, the group
+// of students, with its 
+// many students and the test given.
+typedef struct Grade {
+    int num_students;
+} Grade;
 
 
 // This struct represents the test.
@@ -23,18 +23,21 @@ typedef struct Test {
 } Test;
 
 
-// This struct represents the class with its 
-// many students and the test given.
-typedef struct Grade {
-    int num_students;
+// This struct represents a student.
+typedef struct Student {
+
+    Grade* grade;
     Test* test;
-    Student* students;
-} Grade;
+    int ra;
+    int num_correct;
+    float result;
+    char* answers;
+} Student;
 
 
 // ==============================
 // Functions.
-// Getters.
+// "Getters", or, in this case, "printers".
 void print_gabarito(Grade* grade);
 void print_results(Grade* grade);
 
@@ -58,17 +61,16 @@ int main() {
 
     set_num_questions(&grade);
     set_question_value(&grade);
-    printf("Então a prova tem %d questões?\n", grade.test->num_questions);
+    printf("A prova tem %d questões.\n", grade.test->num_questions);
     printf("Com %d questões, cada questão vale %.2f.\n", grade.test->num_questions, grade.test->question_value);
     set_gabarito(&grade);
 
-    printf("\t>>>> GABARITO <<<<\n");
     print_gabarito(&grade);
 
     set_num_students(&grade);
     printf("Certo. A turma tem %d alunos.\n", grade.num_students);
 
-    grade.students = (Student*) malloc(sizeof(Student));
+    grade.students = (Student*) calloc(grade.num_students, sizeof(Student));
 
     set_students_data(&grade);
     set_students_results(&grade);
@@ -76,18 +78,15 @@ int main() {
     print_results(&grade);
 
 
-
-
-
-
-
+    free(grade.students);
+    free(grade.test);
 
     return 0;
 }
 
 
 void print_gabarito(Grade* grade) {
-
+    printf("\n\t>>>> GABARITO <<<<\n");
     printf("\n\tQuestão\tResposta");
     for (int i = 0; i < grade->test->num_questions; i++) {
         printf("\n\t%d\t%c", i + 1, grade->test->answer_key[i]);
@@ -155,7 +154,7 @@ void set_gabarito(Grade* grade) {
 void set_num_students(Grade* grade) {
     int num = 0;
     do {
-        printf("\nInforme o número de alunos na turma: ");
+        printf("\n\nInforme o número de alunos na turma: ");
         scanf("%d", &num);
 
         if (num <= 0) {
@@ -164,7 +163,6 @@ void set_num_students(Grade* grade) {
     } while (num <= 0);
 
     grade->num_students = num;
-    printf("%d", grade->num_students);
 
     return;
 }
@@ -231,6 +229,11 @@ int valid_answer(char item) {
             break;
         }
     }
+
+    if (is_in == 0) {
+        printf("A resposta informada não é válida.\n");
+    }
+
     return is_in;
 }
 
