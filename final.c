@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <ctype.h>
+#include <string.h>
 
 
 // Structs.
@@ -38,7 +39,7 @@ typedef struct Student {
     int (*get_ra)(struct Student* self);
     float  (*get_result)(struct Student* self);
     char* (*get_answers)(struct Student* self);
-    int* (*reference_ra)(struct Student* self);
+    void (*set_ra)(struct Student* self, int ra);
     char** (*reference_answers)(struct Student* self);
 
     Class* class;
@@ -53,7 +54,7 @@ typedef struct Student {
 // Initializers.
 Class class_init();
 Test test_init();
-Student student_init(Class* class, Test* test);
+Student student_init(Class* class, Test* test, int ra, char* answers);
 
 // Functions to be encapsulated.
 // For the Class.
@@ -68,7 +69,7 @@ char* get_answer_key(Test* self);
 void print_answer_key(Test* self);
 
 // For the Student.
-int* reference_ra(Student* self);
+void set_ra(Student* self, int ra);
 char** reference_answers(Student* self);
 void set_answers(Student* self, char* answers); 
 int get_num_correct(Student* self);
@@ -89,7 +90,7 @@ int main() {
     Class class = class_init();
     Test test = test_init();
     Student* students;
-    int num_students = 0, num_questions = 0;
+    int num_students = 0, num_questions = 0, ra = 0;
     char* answer_key = (char*) malloc(sizeof(char));
     char* answers = (char*) malloc(sizeof(char));
     
@@ -141,21 +142,21 @@ int main() {
         exit(1);
     }
 
-    for (int i = 0; i < class.get_num_students(&class); i++) {
-        students[i] = student_init(&class, &test);
-    }
-    
     printf("\n\nCerto. Vamos receber os dados dos estudantes.");
     for (int i = 0; i < class.get_num_students(&class); i++) {
-        printf("\n==> Informe o RA do estudante %d: ", i + 1);
-        scanf("%d", students[i].reference_ra(&students[i]));
 
-        printf("O RA do estudante é: %d", students[i].get_ra(&students[i]));
+        do {
+            printf("\n==> Informe o RA do estudante %d: ", i + 1);
+            scanf("%d", &ra);
+        } while (!valid_number(ra));
 
         for (int j = 0; j < test.get_num_questions(&test); j++) {
-            
-
+            printf("\n==> Informe a resposta dada à questão %d: ", j + 1);
+            scanf(" %c", &answers[j]);
         }
+        
+        students[i] = student_init(&class, &test, ra, answers);
+        
     }
 
 
@@ -181,20 +182,22 @@ Test test_init() {
 }
 
 
-Student student_init(Class* class, Test* test) {
+Student student_init(Class* class, Test* test, int ra, char* answers) {
     Student student;
 
     student.set_answers = &set_answers; 
     student.get_num_correct = &get_num_correct;
     student.get_result = &get_result;
     student.get_answers = &get_answers;
-    student.reference_ra = &reference_ra;
+    student.set_ra = &set_ra;
     student.reference_answers = &reference_answers;
     student.get_ra = &get_ra;
         
     student.class = class;
     student.test = test;
-    student.answers = (char*) malloc(test->get_num_questions(test) * sizeof(char));
+    student.ra = ra;
+    student.answers = (char*) malloc(student.test->get_num_questions(student.test) * sizeof(char));
+    memcpy(student.answers, answers, student.test->get_num_questions(student.test) * sizeof(char));
 
     return student;
 }
@@ -282,8 +285,9 @@ char* get_answers(Student* self) {
 }
 
 
-int* reference_ra(Student* self) {
-    return &self->ra;
+void set_ra(Student* self, int ra) {
+    self->ra = ra;
+    return;
 }
 
 
