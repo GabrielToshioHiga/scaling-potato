@@ -35,6 +35,7 @@ typedef struct Test {
 typedef struct Student {
     void (*set_answers)(struct Student* self, char* answers);
     int (*get_num_correct)(struct Student* self);
+    int (*get_ra)(struct Student* self);
     float  (*get_result)(struct Student* self);
     char* (*get_answers)(struct Student* self);
     int* (*reference_ra)(struct Student* self);
@@ -48,6 +49,11 @@ typedef struct Student {
     char* answers;
 } Student;
 
+
+// Initializers.
+Class class_init();
+Test test_init();
+Student student_init(Class* class, Test* test);
 
 // Functions to be encapsulated.
 // For the Class.
@@ -68,6 +74,7 @@ void set_answers(Student* self, char* answers);
 int get_num_correct(Student* self);
 float get_result(Student* self);
 char* get_answers(Student* self);
+int get_ra(Student* self);
 
 
 // Utilitary functions.
@@ -78,8 +85,9 @@ int valid_answer(char answer);
 
 // The main function.
 int main() {
-    Class class = {.set_num_students = &set_num_students, .get_num_students = &get_num_students};
-    Test test = {.set_num_questions = &set_num_questions, .set_answer_key = &set_answer_key, .get_answer_key = &get_answer_key, .get_num_questions = &get_num_questions, .print_answer_key = &print_answer_key};
+    setlocale(LC_ALL, "Portuguese");
+    Class class = class_init();
+    Test test = test_init();
     Student* students;
     int num_students = 0, num_questions = 0;
     char* answer_key = (char*) malloc(sizeof(char));
@@ -134,22 +142,15 @@ int main() {
     }
 
     for (int i = 0; i < class.get_num_students(&class); i++) {
-        students[i].set_answers = &set_answers; 
-        students[i].get_num_correct = &get_num_correct;
-        students[i].get_result = &get_result;
-        students[i].get_answers = &get_answers;
-        students[i].reference_ra = &reference_ra;
-        students[i].reference_answers = &reference_answers;
-        
-        students[i].class = &class;
-        students[i].test = &test;
-        students[i].answers = (char*) malloc(test.get_num_questions(&test) * sizeof(char));
+        students[i] = student_init(&class, &test);
     }
     
     printf("\n\nCerto. Vamos receber os dados dos estudantes.");
     for (int i = 0; i < class.get_num_students(&class); i++) {
         printf("\n==> Informe o RA do estudante %d: ", i + 1);
         scanf("%d", students[i].reference_ra(&students[i]));
+
+        printf("O RA do estudante é: %d", students[i].get_ra(&students[i]));
 
         for (int j = 0; j < test.get_num_questions(&test); j++) {
             
@@ -166,6 +167,38 @@ int main() {
 
     return 0;
 }
+
+
+Class class_init() {
+    Class class = {.set_num_students = &set_num_students, .get_num_students = &get_num_students};
+    return class;
+}
+
+
+Test test_init() {
+    Test test = {.set_num_questions = &set_num_questions, .set_answer_key = &set_answer_key, .get_answer_key = &get_answer_key, .get_num_questions = &get_num_questions, .print_answer_key = &print_answer_key};
+    return test;
+}
+
+
+Student student_init(Class* class, Test* test) {
+    Student student;
+
+    student.set_answers = &set_answers; 
+    student.get_num_correct = &get_num_correct;
+    student.get_result = &get_result;
+    student.get_answers = &get_answers;
+    student.reference_ra = &reference_ra;
+    student.reference_answers = &reference_answers;
+    student.get_ra = &get_ra;
+        
+    student.class = class;
+    student.test = test;
+    student.answers = (char*) malloc(test->get_num_questions(test) * sizeof(char));
+
+    return student;
+}
+
 
 void set_num_students(Class* self, int num_students) {
     self->num_students = num_students;
@@ -231,6 +264,11 @@ void set_answers (Student* self, char* answers) {
 
 int get_num_correct(Student* self) {
     return self->num_correct;
+}
+
+
+int get_ra(Student* self) {
+    return self->ra;
 }
 
 
