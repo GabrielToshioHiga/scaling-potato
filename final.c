@@ -1,3 +1,6 @@
+/*
+    I'm sowwwy...
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <locale.h>
@@ -60,18 +63,22 @@ float get_result(Student* self);
 
 int main() {
     Class class = {.set_num_students = &set_num_students, .get_num_students = &get_num_students};
-    Test test = {.set_num_questions = &set_num_questions, .set_answer_key = &set_answer_key, .get_answer_key = &get_answer_key};
+    Test test = {.set_num_questions = &set_num_questions, .set_answer_key = &set_answer_key, .get_answer_key = &get_answer_key, .get_num_questions = &get_num_questions};
 
-    int num_students = 0, num_questions = 0;
-    char* answer_key;
+    int num_students = 0;
+    int num_questions = 0;
     Student* students;
 
+    char* answer_key = (char*) malloc(sizeof(char));
 
     printf("\nInforme o número de questões da prova: ");
     scanf("%d", &num_questions);
+    printf("Número de questões informado: %d.", num_questions);
+
     test.set_num_questions(&test, num_questions); 
 
-    answer_key = (char*) calloc(test.get_num_questions(&test), sizeof(char));
+    answer_key = (char*) realloc(answer_key, test.get_num_questions(&test) * sizeof(char));
+
     if (answer_key == NULL) {
         printf("\nCALLOC for %d questions returned NULL.\n", test.get_num_questions(&test));
         exit(1);
@@ -82,6 +89,10 @@ int main() {
         printf("Informe o valor da questão %d: ", i + 1);
         scanf(" %c", &answer_key[i]);
     }
+
+    test.set_answer_key(&test, answer_key);
+
+    free(answer_key);
 
 
     printf("\nInsira o número de estudantes: ");
