@@ -7,7 +7,7 @@
 // Funções para manejo de dados.
 int set_num_questoes();
 float set_valor_questao(int num_questoes);
-char* set_gabarito(int num_questoes);
+void set_gabarito(char gabarito[], int num_questoes);
 void get_gabarito(char* gabarito, int num_questoes);
 int set_num_alunos();
 
@@ -15,27 +15,6 @@ int set_num_alunos();
 void print_saudacoes(); 
 int char_in_vetor(char item, char vetor[], int num_itens_validos);
 
-
-// Estruturas.
-typedef struct Aluno {
-    int ra;
-    char* respostas;
-    float resultado;
-} Aluno;
-
-
-typedef struct Prova {
-    int num_questoes;
-    float valor_questao;
-    char* gabarito;
-} Prova;
-
-
-typedef struct Turma {
-    int num_alunos;
-    Prova* prova;
-    Aluno* alunos;
-} Turma;
 
 
 // ============================================
@@ -46,31 +25,21 @@ int main(int argc, char* argv[]) {
 
     // Declaração das variáveis necessárias.
     int num_questoes = 0, num_alunos = 0, num_corretas = 0;
-    float valor_questao = 0;
-    Aluno* dados_alunos;
-    char* gabarito;
-    int* ras_alunos;
-    float* resultados_alunos;
+    float valor_questao = 0.0;
 
-    Prova prova;
 
     // Dá um bem-vindo pro usuário e explica como o programa funciona.
     print_saudacoes();
     
     // Pega o número de questões.
-    prova.num_questoes = set_num_questoes();
-    
-    // Limpa a tela (funciona em alguns SOs, acho que não no Windows).
-    // system("clear");
+    num_questoes = set_num_questoes();
 
     // Calcula o valor de cada questão.
-    prova.valor_questao = set_valor_questao(prova.num_questoes);
+    valor_questao = set_valor_questao(num_questoes);
 
     // Pega o gabarito.
-    printf("\nAgora, precisamos do gabarito das questões...\n\n");
-    prova.gabarito = set_gabarito(prova.num_questoes);
-
-    // system("clear");
+    char gabarito[num_questoes];
+    set_gabarito(gabarito, num_questoes);
 
     // Mostra o gabarito informado pelo usuário.
     get_gabarito(gabarito, num_questoes);
@@ -79,16 +48,11 @@ int main(int argc, char* argv[]) {
     num_alunos = set_num_alunos();
 
     printf("Ok... A seguir, receberemos os RAs as respostas de cada um dos %d alunos.\n", num_alunos);
-    
-    // Aloca a quantidade correta de memória.
-    dados_alunos = (Aluno*) calloc(num_alunos, sizeof(Aluno));
 
 
-    // Aloca memória de acordo com o número de alunos e de questões.
-    //int ras_alunos[num_alunos];
-    ras_alunos = (int*) calloc(1, num_alunos * sizeof(int));
+    int ras_alunos[num_alunos];
     char respostas_alunos[num_alunos][num_questoes];
-    resultados_alunos = (float*) calloc(1, num_alunos * sizeof(float));
+    float resultados_alunos[num_alunos];
 
     // Loop para pegar os dados para cada aluno.
     for (int aluno = 0; aluno <  num_alunos; aluno++) {
@@ -124,9 +88,6 @@ int main(int argc, char* argv[]) {
 
     printf("\n");
 
-    // Libera memória alocada.
-    free(gabarito);
-    free(dados_alunos);
     return 0;
 }
 
@@ -186,7 +147,7 @@ float set_valor_questao(int num_questoes) {
 }
 
 
-char* set_gabarito(int num_questoes) {
+void set_gabarito(char* gabarito, int num_questoes) {
 /*
     Esta função recebe o gabarito da prova.
 
@@ -195,15 +156,11 @@ char* set_gabarito(int num_questoes) {
 
     Retorna: um ponteiro para o vetor que contém o gabarito. 
 */
-
-    // Aloca memória com o tamanho necessário.
-    char* gabarito = (char*) calloc(num_questoes, sizeof(char));
-    
+    // Variáveis para validação.
     int resposta_valida = 0;
-
-    // Vetor com as respostas consideradas válidas.
     char respostas_validas[] = {'a', 'b', 'c', 'd', 'e'};
-    
+    printf("\nAgora, precisamos do gabarito das questões...\n\n");
+
     // Loop para pegar os itens de gabarito.
     for (int i = 0; i < num_questoes; i++) {
         // do-while para validação.
@@ -217,14 +174,13 @@ char* set_gabarito(int num_questoes) {
 
             // Se a resposta for inválida, avisa o usuário.
             if (!resposta_valida) {
-                printf("Cada questão deve ter uma resposta de 'a' a 'e'!\n");
+                printf("Resposta informada inválida. Respostas possíveis: ['a', 'b', 'c', 'd', 'e'].\n");
             }
         } while (!resposta_valida);
         
     }
     
-    // Retorna um ponteiro para o gabarito obtido.
-    return gabarito;
+    return;
 }
 
 
@@ -232,7 +188,7 @@ void get_gabarito(char* gabarito, int num_questoes) {
     
     // Mostra o gabarito informado pelo usuário.
     
-    printf("O gabarito da prova, então, é: ");
+    printf("Gabarito informado: ");
     printf("\n\tQuestão\tResposta");
 
     for (int i = 0; i < num_questoes; i++) {
@@ -279,7 +235,7 @@ int char_in_vetor(char item, char vetor[], int num_itens_validos) {
     Retorna: 0, se o item não estiver no vetor; 1, se o item estiver no vetor.
 */
     int resultado = 0;
-    printf("%d", num_itens_validos);
+
     for (int i = 0; i < num_itens_validos; i++) {
         if (item == vetor[i]) {
             resultado = 1;
