@@ -1,0 +1,227 @@
+#include <stdio.h>
+#include <locale.h>
+
+/*
+==================================================================================
+
+                               Projeto Lab3
+
+==================================================================================
+Empresa: Spartana
+Equipe de Programadores:
+               Nome: Fabricio
+               Nome: Gabriel Oliveira
+               Nome: Gabriel Toshio
+               Nome: Pedro Gabriel
+			   Nome: Rafael Vieira 
+Curso: Laboratorio de programacao 1 
+Data de in�cio do projeto: 28/10/2022
+----------------------------------------------------------------------------------
+Descri��o do Programa:
+			O objetivo deste programa, � elaborar um um programa que receba as no-
+		a quantidade de quest�es de uma prova, quantos alunos a fizeram e seus co-
+		digos, o gabarito desta prova e que calcule as notas dos alunos.		
+Vers�o do programa: 1.0
+Melhorias da vers�o: ("Primeira vers�o")		 
+Data de lan�amento da vers�o: 15/11/2022
+==================================================================================
+*/
+
+
+int main()
+{
+ 
+ 	setlocale(LC_ALL, "Portuguese");
+    
+	//Declarando variaveis
+    
+	int questoesProva, quantidadeAlunos, i, contador, acertos, validacaoRA;
+	float nota, valorQuestao;
+	int validacaoGabarito, validacaoResposta;
+	
+	questoesProva = 0;
+	quantidadeAlunos = 0;
+	i = 0;
+	validacaoGabarito = 0;
+	validacaoResposta = 0;
+	validacaoRA = 0;
+
+	//Quantidade de questoes
+	
+	
+	while(questoesProva <= 0)
+	{
+		printf("Insira a quantidade de quest�es da prova:");
+		scanf("%d", &questoesProva);
+	}
+	
+
+	
+	
+	//Informe o gabarito da prova
+		
+	printf("\nInsira o gabarito da prova:\n");
+	
+	
+	char vetorGabaritoProva[questoesProva];
+	
+	
+	while(validacaoGabarito == 0)
+	{
+		for(i = 0; i < questoesProva;)
+		{		
+			printf("\nQuest�o(%d) \nResposta:", i+1);
+			scanf(" %c", &vetorGabaritoProva[i]);
+	 	
+			if(vetorGabaritoProva[i] == 'a')
+			{
+				validacaoGabarito = 1;
+				i++;
+			}
+				else if(vetorGabaritoProva[i] == 'b')
+				{
+					validacaoGabarito = 1;
+					i++;
+				}
+				else if(vetorGabaritoProva[i] == 'c')
+				{
+					validacaoGabarito = 1;
+					i++;
+				}
+				else if(vetorGabaritoProva[i] == 'd')
+				{
+					validacaoGabarito = 1;
+					i++;
+				}
+				else if(vetorGabaritoProva[i] == 'e')
+				{
+					validacaoGabarito = 1;
+					i++;
+				}
+				else
+				{
+					printf("\nInsira um valor v�lido!\n");
+					validacaoGabarito = 0;
+				}
+		}
+	}
+	
+	
+	//Quantidade de alunos
+	
+		
+		printf("\nInsira a quantidade de alunos que realizaram a prova: ");
+		scanf("%d", &quantidadeAlunos);
+		
+	
+	
+	//Inserindo RAs
+	
+	printf("\nInsira o RA dos alunos:\n");
+	
+	int vetorIdentificaoAlunos[quantidadeAlunos];
+	
+
+		for(i = 0; i < quantidadeAlunos; i++)
+		{
+			printf("\nAluno(%d): ", i+1);
+			scanf("%d", &vetorIdentificaoAlunos[i]);	
+		}
+		
+	
+	
+	//Respostas dos alunos
+	
+	printf("\n\nInsira as respostas dos alunos:\n");
+	
+	float vetorNotas[quantidadeAlunos];
+	char vetorRespostaAluno[questoesProva];
+	
+	contador = 0;
+	valorQuestao = (10/questoesProva);
+	
+	while(contador < quantidadeAlunos)
+	{
+		printf("\nAluno(%d)\n", contador+1);
+		
+		validacaoResposta = 0;
+		
+		while(validacaoResposta == 0)
+		{
+		
+			for(i = 0; i < questoesProva;)
+			{
+				printf("\nQuest�o(%d)\n", i+1);
+				printf("Resposta: ");
+				scanf(" %c", &vetorRespostaAluno[i]);	
+			
+					if(vetorRespostaAluno[i] == 'a')
+				{
+					validacaoResposta = 1;
+					i++;
+				}
+					else if(vetorRespostaAluno[i] == 'b')
+					{
+						validacaoResposta = 1;
+						i++;
+					}
+					else if(vetorRespostaAluno[i] == 'c')
+					{
+						validacaoResposta = 1;
+						i++;
+					}
+					else if(vetorRespostaAluno[i] == 'd')
+					{
+						validacaoResposta = 1;
+						i++;
+					}
+					else if(vetorRespostaAluno[i] == 'e')
+					{
+						validacaoResposta = 1;
+						i++;
+					}
+					else
+					{
+						printf("Insira um valor v�lido!");
+						validacaoResposta = 0;
+					}	
+			}
+		}	
+		
+		acertos = 0;
+		
+		//Comparando respostas com gabarito e calculando
+		
+		for(i = 0; i < questoesProva; i++)
+		{
+			if(vetorGabaritoProva[i] == vetorRespostaAluno[i])
+			{
+				acertos = acertos + 1;
+			}				
+		}
+		
+		nota = (acertos*valorQuestao);
+		
+		
+		//Guardando no vetor de notas
+		
+	
+		vetorNotas[contador] = nota;
+	
+		
+		contador++; 
+	}
+	
+	
+	//Mostrando as notas com RAs
+	
+	printf("\nRela��o de Notas:");
+	
+	for(i = 0; i < quantidadeAlunos; i++)
+	{
+		printf("\n\nAluno(RA:%d)", vetorIdentificaoAlunos[i]);
+		printf("\nNota: %.2f", vetorNotas[i]);
+	}
+	
+return 0;
+}
